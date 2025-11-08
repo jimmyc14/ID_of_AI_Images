@@ -5,6 +5,7 @@ ipykernel
 
 ## Utils
 tqdm
+natsort
 
 ## Main Packages
 numpy==2.2.6
@@ -15,7 +16,7 @@ torch==2.7.1
 torchvision==0.22.1
 torchaudio==2.7.1
 datasets==4.4.0
-natsort
+Pillow==10.1.0
 
 ## Plotting
 matplotlib
