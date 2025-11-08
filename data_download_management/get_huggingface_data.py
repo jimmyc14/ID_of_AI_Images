@@ -10,7 +10,11 @@ import time
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 PILImage.MAX_IMAGE_PIXELS = None  # disable PIL decompression bomb check, we are checking it ourselves
 
-hf_local_path = Path(r"C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection")
+###  UPDATE THIS LINE ####
+where_you_saved_data = r"C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" 
+##########################
+
+hf_local_path = Path(where_you_saved_data)
 splits = ["train", "validation"]
 types = ["real", "fake"]
 
