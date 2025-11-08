@@ -51,7 +51,7 @@ https://github.com/MI-BioLab/AI-GenBench/blob/main/dataset_creation/README.md#si
 
 - Due to the size of the AI-GenBench compiled dataset (~100gb), we have uploaded a 40% version to huggingface. 
 
-- Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb.
+- Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
 * - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
 
 - The data are stored in arrows, so you will have to extract them using the following script from the repo:
