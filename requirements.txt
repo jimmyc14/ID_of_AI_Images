@@ -2,6 +2,7 @@
 
 ## For Jupyter Notebooks
 ipykernel
+ipywidgets
 
 ## Utils
 tqdm
