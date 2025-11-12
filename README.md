@@ -9,6 +9,8 @@ For Rivanna: Run this first ```module load miniforge/24.11.3-py3.12```
 
 ```conda create -n id_ai```
 
+```conda activate ai_id```
+
 ```conda install python=3.12```
 
 ```pip install -r requirements.txt```
