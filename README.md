@@ -23,7 +23,7 @@ Install python: ```conda install python=3.12```
 
 Install requirements for project: ```pip install -r requirements.txt```
 
-FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --user --name=id_ai --display-name "Python (id_ai)"```
+FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --name id_ai --display-name id_ai --prefix ~/.local```. You made need to close the tab and reopen the Rivanna session to make it show up as a kernal option within a notebook. 
 
 # Getting AI-GenBench to run (only needed if trying to compile the data the way they do):
 ## No need to do this for the current project workflow
