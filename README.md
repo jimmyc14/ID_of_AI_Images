@@ -23,6 +23,8 @@ Install python: ```conda install python=3.12```
 
 Install requirements for project: ```pip install -r requirements.txt```
 
+FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --user --name=id_ai --display-name "Python (id_ai)"```
+
 # Getting AI-GenBench to run (only needed if trying to compile the data the way they do):
 ## No need to do this for the current project workflow
 
