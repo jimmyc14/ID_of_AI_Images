@@ -72,7 +72,7 @@ https://github.com/MI-BioLab/AI-GenBench/blob/main/dataset_creation/README.md#si
 - The data are stored in arrows, so you will have to extract them using the following script from the repo:
 https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/get_huggingface_data.py
 
-- Fill in the path you just clone the repo to in the 'get_huggingface_data.py' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script
+- Fill in the path you just clone the repo to in the 'get_huggingface_data.py' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script. FOR RIVANNA: make sure to include the directory structure you are using, for example with SCRATCH: ```/scratch/{uva_id}/path/to/DS6050_Ai_Detection```
 
 - As the script runs, it will copy all images into a respective temp_ folder, then delete the original folder storing the arrows, to save some space. It will then rename the temp folders.
 
