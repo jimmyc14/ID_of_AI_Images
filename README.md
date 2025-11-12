@@ -3,17 +3,25 @@ UVA DS6050 Fall 2025 Group 7 Final Project. Identification of AI Images.
 
 Currently using conda to manage environments
 
-# ***Using Random Seed of 6050 for any random process***
+### ***Using Random Seed of 6050 for any random process***
 
-For Rivanna: Run this first ```module load miniforge/24.11.3-py3.12```
+---
 
-```conda create -n id_ai```
+# Setting up our environment
 
-```conda activate ai_id```
+Clone this repo: ```https://github.com/jimmyc14/ID_of_AI_Images.git```
 
-```conda install python=3.12```
+cd into directory: ```cd ID_of_AI_Images```
 
-```pip install -r requirements.txt```
+For Rivanna: Run this first to load Conda ```module load miniforge/24.11.3-py3.12```
+
+Create conda environment: ```conda create -n id_ai```
+
+Make sure to activate environment: ```conda activate ai_id```
+
+Install python: ```conda install python=3.12```
+
+Install requirements for project: ```pip install -r requirements.txt```
 
 # Getting AI-GenBench to run (only needed if trying to compile the data the way they do):
 ## No need to do this for the current project workflow
