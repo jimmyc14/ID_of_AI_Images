@@ -23,7 +23,7 @@ Install python: ```conda install python=3.12```
 
 Install requirements for project: ```pip install -r requirements.txt```
 
-FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --name id_ai --display-name id_ai --prefix ~/.local```. You made need to close the tab and reopen the Rivanna session to make it show up as a kernal option within a notebook. 
+FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --name id_ai --display-name id_ai --prefix ~/.local```. You may need to close the tab and reopen the Rivanna session to make it show up as a kernal option within a notebook. 
 
 --- 
 ## Getting the dataset on your machine. 
@@ -38,7 +38,7 @@ FOR RIVANNA: Run the following line to make sure JupyterLab can see our new envi
 * - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
 
 - The data are stored in arrows, so you will have to extract them using the following script from the repo:
-[https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/get_huggingface_data.py](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb)
+[https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb)
 
 - Fill in the path you just clone the repo to in the 'parallel_test.ipynb' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script. FOR RIVANNA: make sure to include the directory structure you are using, for example with SCRATCH: ```/scratch/{uva_id}/path/to/DS6050_Ai_Detection```
 
