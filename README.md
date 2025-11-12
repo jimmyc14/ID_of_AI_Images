@@ -5,6 +5,8 @@ Currently using conda to manage environments
 
 # ***Using Random Seed of 6050 for any random process***
 
+For Rivanna: Run this first ```module load miniforge/24.11.3-py3.12```
+
 ```conda create -n id_ai```
 
 ```conda install python=3.12```
