@@ -25,6 +25,46 @@ Install requirements for project: ```pip install -r requirements.txt```
 
 FOR RIVANNA: Run the following line to make sure JupyterLab can see our new environment ```python -m ipykernel install --name id_ai --display-name id_ai --prefix ~/.local```. You made need to close the tab and reopen the Rivanna session to make it show up as a kernal option within a notebook. 
 
+--- 
+## Getting the dataset on your machine. 
+
+### Recommend Using a CPU session in Rivanna with at least 8 cores to make the file extraction faster. 
+
+- Due to the size of the AI-GenBench compiled dataset (~100gb), we have uploaded a 40% version to huggingface.
+
+- IMPORTANT FOR RIVANNA: in the terminal run ```module load git-lfs``` and ```git lfs install```, this loads gits large file storage which allows us to get the data
+
+- Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
+* - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
+
+- The data are stored in arrows, so you will have to extract them using the following script from the repo:
+[https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/get_huggingface_data.py](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb)
+
+- Fill in the path you just clone the repo to in the 'parallel_test.ipynb' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script. FOR RIVANNA: make sure to include the directory structure you are using, for example with SCRATCH: ```/scratch/{uva_id}/path/to/DS6050_Ai_Detection```
+
+- As the script runs, it will copy all images into a respective temp_ folder, then delete the original folder storing the arrows, to save some space. It will then rename the temp folders.
+
+* - note: This will also take some time, it took roughly ~30-60 minutes for me. 
+* - note2: Roughly ~300 images in the dataset are EXTREMELY large, causing issues with saving. They are therefore resized 10x smaller to avoid errors during this extraction process. These images were 30720x20562 pixels originally. 
+
+- Due to this, if a failure occurs mid-extraction, make sure all 4 folders containing arrows are there before attempting to run again. If not, you may need to clone the dataset (or at least the missing folders) again.
+
+---
+# Connecting Your Rivanna session to the main github repo
+
+- First, must accept invation to be a collaborator for the github repo.
+
+- In Rivanna: ```ssh-keygen -t ed25519 -C "{your UVA email}"```
+
+- ```cat ~/.ssh/id_ed25519.pub``` -> This will show your ssh-key for your rivanna.
+
+- Now go to GitHub, and add that key to your GitHub -> SSH and GPG keys: https://github.com/settings/keys. Click on 'New SSH key' and add the key from Rivanna. This will link your github account to your Rivanna session
+
+- Back in Rivanna, navigate to the ID_of_AI_Images folder, and do ```git remote set-url origin git@github.com:jimmyc14/ID_of_AI_Images.git```. This will ensure your cloned session uses ssh.
+
+- You should now be able to fully use git to manage the project!
+
+---
 # Getting AI-GenBench to run (only needed if trying to compile the data the way they do):
 ## No need to do this for the current project workflow
 
@@ -59,26 +99,4 @@ https://github.com/MI-BioLab/AI-GenBench/blob/main/dataset_creation/README.md#si
 ---wip---
 
 ### * need to check the stats on these * TODO: Develop a table of image counts by data source for train/validation, real/fake. Can be done with the csvs quite easily (they track the source)
-- In gathering the real training images, the LAION dataset contained 134,453 images, and the coco dataset contained 123,287 images. 
-
---- 
-## Getting the dataset on your machine. 
-
-- Due to the size of the AI-GenBench compiled dataset (~100gb), we have uploaded a 40% version to huggingface.
-
-- IMPORTANT FOR RIVANNA: in the terminal run ```module load git-lfs``` and ```git lfs install```, this loads gits large file storage which allows us to get the data
-
-- Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
-* - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
-
-- The data are stored in arrows, so you will have to extract them using the following script from the repo:
-https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/get_huggingface_data.py
-
-- Fill in the path you just clone the repo to in the 'get_huggingface_data.py' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script. FOR RIVANNA: make sure to include the directory structure you are using, for example with SCRATCH: ```/scratch/{uva_id}/path/to/DS6050_Ai_Detection```
-
-- As the script runs, it will copy all images into a respective temp_ folder, then delete the original folder storing the arrows, to save some space. It will then rename the temp folders.
-
-* - note: This will also take some time, it took roughly ~30-60 minutes for me. 
-* - note2: Roughly ~300 images in the dataset are EXTREMELY large, causing issues with saving. They are therefore resized 10x smaller to avoid errors during this extraction process. These images were 30720x20562 pixels originally. 
-
-- Due to this, if a failure occurs mid-extraction, make sure all 4 folders containing arrows are there before attempting to run again. If not, you may need to clone the dataset (or at least the missing folders) again. 
+- In gathering the real training images, the LAION dataset contained 134,453 images, and the coco dataset contained 123,287 images.   
