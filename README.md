@@ -62,7 +62,9 @@ https://github.com/MI-BioLab/AI-GenBench/blob/main/dataset_creation/README.md#si
 --- 
 ## Getting the dataset on your machine. 
 
-- Due to the size of the AI-GenBench compiled dataset (~100gb), we have uploaded a 40% version to huggingface. 
+- Due to the size of the AI-GenBench compiled dataset (~100gb), we have uploaded a 40% version to huggingface.
+
+- IMPORTANT FOR RIVANNA: in the terminal run ```module load git-lfs``` and ```git lfs install```, this loads gits large file storage which allows us to get the data
 
 - Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
 * - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
