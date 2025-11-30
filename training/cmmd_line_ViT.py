@@ -54,25 +54,6 @@ def subset_dataset(dataset, percent, seed=6050):
     indices = random.sample(range(len(dataset)), subset_size)
     return Subset(dataset, indices)
 
-def plot_loss_and_acc(track_loss, track_train_acc, track_val_acc):
-    plt.figure(figsize=(10, 5))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(track_train_acc, label="Train")
-    plt.plot(track_val_acc, label="Validation")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.legend()
-
-    plt.subplot(1, 2, 2)
-    plt.plot(track_loss, label="Loss")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.legend()
-
-    plt.tight_layout()
-    plt.show()
-
 def get_dataset_records(dataset, split_name):
     """
     Returns: list of dicts: {image_path, image_type, image_split}
