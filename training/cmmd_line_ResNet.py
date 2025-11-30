@@ -133,7 +133,7 @@ def loading_data(train_dir, val_dir, transform, train_ratio = 1.0, batch_size=32
     else:
         train_dataset = subset_dataset(train_dataset, train_ratio)
         val_dataset = subset_dataset(val_dataset, train_ratio)
-        print(f"Using {train_percent*100}% of the data")
+        print(f"Using {train_ratio*100}% of the data")
 
     #DATALOADERS
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
@@ -147,7 +147,10 @@ def loading_data(train_dir, val_dir, transform, train_ratio = 1.0, batch_size=32
 
     all_records = train_records + val_records
 
-    csv_path = f"logs/dataset_split_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    csv_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
+    csv_name = f"dataset_split_{csv_datetime}.csv"
+    csv_path = f"logs/{csv_name}"
+
     os.makedirs("logs", exist_ok=True)
 
     with open(csv_path, "w", newline="") as f:
@@ -158,7 +161,7 @@ def loading_data(train_dir, val_dir, transform, train_ratio = 1.0, batch_size=32
     print(f"Saved dataset split CSV to: {csv_path}")
     print(f"Total records: {len(all_records)}")
 
-    return train_loader, val_loader, train_dataset, val_dataset
+    return train_loader, val_loader, train_dataset, val_dataset, csv_name
 
 
 # dataloader loads alphabetically, so we need to swap labels
@@ -172,13 +175,23 @@ class CustomImageFolder(datasets.ImageFolder):
 # Training loop with logging
 
 def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs,
-                model_name=None, params=None):
+                model_name=None, csv_name_used = None):
     
     timestamp_pth = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # Initialize logger
-    if params is None:
-        params = {}
+    if model_name is None:
+        model_name = "No model name provided"
+
+    if csv_name_used is None:
+        csv_name_used = "none provided"
+
+    params = {
+        "model": model_name,
+        "dataset split used:": csv_name_used,
+        "epochs_per_step": num_epochs,
+        "batch_size": batch_size,
+        "learning_rate": optimizer.param_groups[0]["lr"],
+    }
 
     log_txt, log_json, json_log = create_run_logger(model_name, params, timestamp_pth)
 
@@ -189,6 +202,11 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
     with open(log_txt, "a") as f:
         f.write(f"Using device: {device_info}\n")
+        f.write(f"Using dataset: {csv_name_used}\n")
+        f.write(f"Using model: {model_name }\n")
+        f.write(f"Using epochs per step: {num_epochs}\n")
+        f.write(f"Using batch size: {batch_size}\n")
+        f.write(f"Using learning rate: {optimizer.param_groups[0]['lr']}\n")
         f.write(f"Training samples: {len(train_loader.dataset)}\n")
         f.write(f"Validation samples: {len(val_loader.dataset)}\n\n")
 
@@ -330,7 +348,7 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-train_loader, val_loader, train_dataset, val_dataset = loading_data(train_dir, 
+train_loader, val_loader, train_dataset, val_dataset, csv_name = loading_data(train_dir, 
                                                                     val_dir, 
                                                                     transform, 
                                                                     train_ratio = train_percent,
@@ -355,7 +373,7 @@ criterion = nn.CrossEntropyLoss(label_smoothing=0.1) # adding label smoothing fo
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4) # adding L2 regularization
 
 all_metrics = train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs,
-                          model_name="ResNet50", params=None)
+                          model_name="ResNet50", csv_name_used=csv_name)
 
 '''
 EXAMPLE USAGE
