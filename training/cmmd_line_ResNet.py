@@ -1,5 +1,4 @@
 import os
-import json
 import random
 import time
 from pathlib import Path
@@ -7,25 +6,24 @@ from tqdm import tqdm
 import numpy as np
 from PIL import Image
 from datetime import datetime
+import csv
+import json
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision.models import vit_b_16, ViT_B_16_Weights
 from torch.utils.data import DataLoader, random_split, Subset
 from torchvision import datasets, transforms, models
-from torch.optim.lr_scheduler import CosineAnnealingLR, SequentialLR, LinearLR
 
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
 from jpeg_aug import RandomJPEGCompression
-import csv
 import argparse
 
 # Helper Functions
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train ViT model for AI image detection.")
+    parser = argparse.ArgumentParser(description="Train ResNet50 model for AI image detection.")
 
     parser.add_argument("--data_root", type=str, required=True,
                         help="Root folder containing train/ and validation/ subfolders.")
@@ -323,12 +321,13 @@ model_name = args.model_name
 
 # DATA TRANSFORMS
 transform = transforms.Compose([
-    transforms.Resize((224, 224)), # specific to ViT
+    transforms.Resize((256, 256)),  # Resize for ResNet
+    transforms.RandomCrop(224),
     transforms.RandomHorizontalFlip(),
     RandomJPEGCompression(quality_range=(30, 95)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                            std=[0.229, 0.224, 0.225])
+                         std=[0.229, 0.224, 0.225])
 ])
 
 train_loader, val_loader, train_dataset, val_dataset = loading_data(train_dir, 
@@ -338,30 +337,31 @@ train_loader, val_loader, train_dataset, val_dataset = loading_data(train_dir,
                                                                     batch_size=batch_size, 
                                                                     num_workers=num_workers)
 
-# MODEL SETUP ViT
-weights = ViT_B_16_Weights.IMAGENET1K_V1
-model = vit_b_16(weights=weights)
+# MODEL SETUP (ResNet50)
+model = models.resnet50(weights=True)
+num_ftrs = model.fc.in_features
 
-model.heads.head = nn.Sequential(
-    nn.LayerNorm(model.heads.head.in_features),
-    nn.Linear(model.heads.head.in_features, 512),
-    nn.GELU(),
-    nn.Dropout(0.3),
-    nn.Linear(512, 2)
+model.fc = nn.Sequential(
+    nn.Linear(num_ftrs, 512),   # hidden layer
+    nn.ReLU(),
+    nn.Dropout(0.4),
+    nn.Linear(512, 2)           # final output
 )
 
 model = model.to(device)
-criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+
+criterion = nn.CrossEntropyLoss(label_smoothing=0.1) # adding label smoothing for better generalization
+
+optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4) # adding L2 regularization
 
 all_metrics = train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs,
-                          model_name="ViT", params=None)
+                          model_name="ResNet50", params=None)
 
 '''
 EXAMPLE USAGE
 
 I had to do this within Conda powershell, im sure there is a way to do it in powershell.
 
-python cmmd_line_ViT.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --batch_size 32 --num_epochs 1 --learning_rate 1e-4 --train_percent 0.1 --num_workers 0 --model_name "ViT"
+python cmmd_line_ResNet.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --batch_size 32 --num_epochs 1 --learning_rate 1e-4 --train_percent 0.1 --num_workers 0 --model_name "ResNet50"
 
 '''
