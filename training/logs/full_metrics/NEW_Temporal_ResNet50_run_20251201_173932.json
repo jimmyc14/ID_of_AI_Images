@@ -1,0 +1,322 @@
+{
+    "timestamp": "20251201_173932",
+    "model": "NEW_Temporal_ResNet50",
+    "parameters": {
+        "model": "NEW_Temporal_ResNet50",
+        "dataset split used:": "dataset_split_20251201_173928.csv",
+        "max_w": 8,
+        "epochs_per_step": 1,
+        "batch_size": 16,
+        "learning_rate": 0.0001
+    },
+    "steps": [
+        {
+            "step": 0,
+            "windows_used": [
+                0
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.27156993289435727,
+                    "train_acc": 96.1556500531549,
+                    "val_past_acc": 97.25739739102768,
+                    "val_next_acc": 93.04551794091543,
+                    "val_all_acc": 65.58221594918842,
+                    "val_past_prec": 94.95920037470924,
+                    "val_next_prec": 89.33738554368797,
+                    "val_all_prec": 78.55040406473796,
+                    "val_past_recall": 89.02166937305442,
+                    "val_next_recall": 68.73444916290782,
+                    "val_all_recall": 65.58221594918842,
+                    "val_past_f1": 91.7237652468315,
+                    "val_next_f1": 74.51147321002789,
+                    "val_all_f1": 61.173234585255685,
+                    "val_past_seenf1": 88.12454742939899,
+                    "val_next_seenf1": 55.299954894000905,
+                    "val_all_seenf1": 48.35188356164384,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.980148543004159,
+                    "val_next_aroc": 0.8981937578425143,
+                    "val_all_aroc": 0.8452027378007451,
+                    "epoch_minutes": 39.24674189885457
+                }
+            ]
+        },
+        {
+            "step": 1,
+            "windows_used": [
+                0,
+                1
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.3183655096983866,
+                    "train_acc": 93.04591090472742,
+                    "val_past_acc": 94.17402852358681,
+                    "val_next_acc": 94.20797757104626,
+                    "val_all_acc": 71.63373323923783,
+                    "val_past_prec": 94.22180931169466,
+                    "val_next_prec": 89.30315572230333,
+                    "val_all_prec": 80.88409701108523,
+                    "val_past_recall": 85.68326851754532,
+                    "val_next_recall": 74.51057833543567,
+                    "val_all_recall": 71.63373323923783,
+                    "val_past_f1": 89.19912446436764,
+                    "val_next_f1": 79.76491674427244,
+                    "val_all_f1": 69.33775446093442,
+                    "val_past_seenf1": 83.9506172839506,
+                    "val_next_seenf1": 66.72496720594665,
+                    "val_all_seenf1": 61.37064031697892,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9713015165616982,
+                    "val_next_aroc": 0.9497057663134381,
+                    "val_all_aroc": 0.8479538834069015,
+                    "epoch_minutes": 43.34035908381144
+                }
+            ]
+        },
+        {
+            "step": 2,
+            "windows_used": [
+                0,
+                1,
+                2
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.32678706292527887,
+                    "train_acc": 92.3101924076963,
+                    "val_past_acc": 94.19943745688055,
+                    "val_next_acc": 94.84752223634054,
+                    "val_all_acc": 79.64714184897672,
+                    "val_past_prec": 92.59829784713845,
+                    "val_next_prec": 85.07347018904765,
+                    "val_all_prec": 83.5409056906665,
+                    "val_past_recall": 91.71146925663895,
+                    "val_next_recall": 87.14187145175283,
+                    "val_all_recall": 79.64714184897672,
+                    "val_past_f1": 92.1430306642588,
+                    "val_next_f1": 86.06769128678167,
+                    "val_all_f1": 79.03879526903937,
+                    "val_past_seenf1": 92.91934005499542,
+                    "val_next_seenf1": 87.3340509508432,
+                    "val_all_seenf1": 77.00720423574342,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9804822701804582,
+                    "val_next_aroc": 0.9553393956011849,
+                    "val_all_aroc": 0.857581504754496,
+                    "epoch_minutes": 44.80095214049022
+                }
+            ]
+        },
+        {
+            "step": 3,
+            "windows_used": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.33125706000991534,
+                    "train_acc": 92.01728587719825,
+                    "val_past_acc": 93.04854749424386,
+                    "val_next_acc": 95.53582752060875,
+                    "val_all_acc": 81.0091743119266,
+                    "val_past_prec": 92.52911456671467,
+                    "val_next_prec": 85.95629290775904,
+                    "val_all_prec": 84.1964072928691,
+                    "val_past_recall": 90.90682849194768,
+                    "val_next_recall": 92.24880910374029,
+                    "val_all_recall": 81.0091743119266,
+                    "val_past_f1": 91.65888644414164,
+                    "val_next_f1": 88.75492583774086,
+                    "val_all_f1": 80.55611358893684,
+                    "val_past_seenf1": 92.12026956972524,
+                    "val_next_seenf1": 93.68770764119601,
+                    "val_all_seenf1": 79.33236821936472,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.978295058143314,
+                    "val_next_aroc": 0.9838360532815809,
+                    "val_all_aroc": 0.8986846259927715,
+                    "epoch_minutes": 46.460207255681354
+                }
+            ]
+        },
+        {
+            "step": 4,
+            "windows_used": [
+                0,
+                1,
+                2,
+                3,
+                4
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.3229958749089971,
+                    "train_acc": 92.52899869380282,
+                    "val_past_acc": 93.53563803207196,
+                    "val_next_acc": 93.71986805379345,
+                    "val_all_acc": 81.97600564573042,
+                    "val_past_prec": 93.40678268956508,
+                    "val_next_prec": 82.50492796166024,
+                    "val_all_prec": 84.90073868099724,
+                    "val_past_recall": 92.41410493208684,
+                    "val_next_recall": 83.47803026345267,
+                    "val_all_recall": 81.97600564573042,
+                    "val_past_f1": 92.87434587979662,
+                    "val_next_f1": 82.9816648079895,
+                    "val_all_f1": 81.590316023316,
+                    "val_past_seenf1": 93.90598579641528,
+                    "val_next_seenf1": 82.79411764705881,
+                    "val_all_seenf1": 80.59827259321676,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9792202136296736,
+                    "val_next_aroc": 0.9397195419662123,
+                    "val_all_aroc": 0.8993774655869922,
+                    "epoch_minutes": 48.838665664196014
+                }
+            ]
+        },
+        {
+            "step": 5,
+            "windows_used": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.33019078986796563,
+                    "train_acc": 91.9986664444074,
+                    "val_past_acc": 92.52340407506247,
+                    "val_next_acc": 91.80494627757645,
+                    "val_all_acc": 83.4015525758645,
+                    "val_past_prec": 92.19290040051635,
+                    "val_next_prec": 76.83751717397345,
+                    "val_all_prec": 84.8913249112263,
+                    "val_past_recall": 92.23594323728676,
+                    "val_next_recall": 84.40541704031003,
+                    "val_all_recall": 83.4015525758645,
+                    "val_past_f1": 92.21426593352382,
+                    "val_next_f1": 79.9435779983277,
+                    "val_all_f1": 83.22246285399801,
+                    "val_past_seenf1": 95.17938464956126,
+                    "val_next_seenf1": 85.82936653240571,
+                    "val_all_seenf1": 84.43973250693199,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9774207650796289,
+                    "val_next_aroc": 0.9195516687089736,
+                    "val_all_aroc": 0.9058688403592031,
+                    "epoch_minutes": 53.01765555938085
+                }
+            ]
+        },
+        {
+            "step": 6,
+            "windows_used": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.3416789830634653,
+                    "train_acc": 91.30175664849445,
+                    "val_past_acc": 90.76929190177223,
+                    "val_next_acc": 86.34257790188488,
+                    "val_all_acc": 82.79110797459421,
+                    "val_past_prec": 90.99748344152403,
+                    "val_next_prec": 55.60793281869639,
+                    "val_all_prec": 84.66794376757788,
+                    "val_past_recall": 90.24883366839241,
+                    "val_next_recall": 53.545877562890794,
+                    "val_all_recall": 82.79110797459421,
+                    "val_past_f1": 90.54179395101116,
+                    "val_next_f1": 54.05610063484813,
+                    "val_all_f1": 82.55500081535645,
+                    "val_past_seenf1": 92.54373106615851,
+                    "val_next_seenf1": 22.18487394957983,
+                    "val_all_seenf1": 83.14847647713684,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9704992615522215,
+                    "val_next_aroc": 0.6537337150515902,
+                    "val_all_aroc": 0.9079437010711251,
+                    "epoch_minutes": 53.23330796957016
+                }
+            ]
+        },
+        {
+            "step": 7,
+            "windows_used": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+            ],
+            "epochs": [
+                {
+                    "epoch": 1,
+                    "train_loss": 0.3841368600636243,
+                    "train_acc": 88.19212624493062,
+                    "val_past_acc": 89.27596905019998,
+                    "val_next_acc": 87.07241226121724,
+                    "val_all_acc": 87.29357798165137,
+                    "val_past_prec": 89.24454397669382,
+                    "val_next_prec": 67.69451443211545,
+                    "val_all_prec": 87.37052848854223,
+                    "val_past_recall": 89.22764053459902,
+                    "val_next_recall": 74.45910202825623,
+                    "val_all_recall": 87.29357798165138,
+                    "val_past_f1": 89.23581398648047,
+                    "val_next_f1": 70.18970448696507,
+                    "val_all_f1": 87.28703359193605,
+                    "val_past_seenf1": 93.8501771553906,
+                    "val_next_seenf1": 73.94757744241461,
+                    "val_all_seenf1": 91.90632389961095,
+                    "val_past_unseenf1": NaN,
+                    "val_next_unseenf1": NaN,
+                    "val_all_unseenf1": NaN,
+                    "val_past_aroc": 0.9586317886635702,
+                    "val_next_aroc": 0.8414481369667719,
+                    "val_all_aroc": 0.9443800005876819,
+                    "epoch_minutes": 53.260786819458005
+                }
+            ]
+        }
+    ]
+}

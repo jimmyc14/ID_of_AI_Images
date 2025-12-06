@@ -60,7 +60,7 @@ def plot_loss_and_acc(track_loss, track_train_acc, track_val_acc):
     plt.tight_layout()
     plt.show()
 
-def create_grid_of_val_images(val_dataset, grid_size=4, fft=False, device='cpu'):
+def create_grid_of_val_images(val_dataset, grid_size=4, fft=False, device='cpu', keep=False):
     # Create a grid of images
     num_images = grid_size * grid_size
 
@@ -115,6 +115,9 @@ def create_grid_of_val_images(val_dataset, grid_size=4, fft=False, device='cpu')
 
     for path, lbl in zip(fixed_paths, fixed_labels):
         print(f"{'Real' if lbl==0 else 'Fake'}: {os.path.basename(path)}")
+    
+    if keep:
+        return fixed_images, fixed_labels, grid_size
 
 
 def main_data_loading(data_root, model_name, train_percent, batch_size, num_workers=0, jpeg_compression=False):
