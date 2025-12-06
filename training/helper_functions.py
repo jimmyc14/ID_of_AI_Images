@@ -18,6 +18,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split, Subset
 from torchvision import datasets, transforms, models
 from torchvision.models import vit_b_16, ViT_B_16_Weights
+import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
@@ -480,7 +481,7 @@ def make_loader_for_windows(dataset, real_indices, fake_indices_by_w,
     loader = DataLoader(subset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     return loader, len(all_indices)
 
-def create_run_logger(model_name, params, timestamp, log_dir="logs"):
+def create_temporal_run_logger(model_name, params, timestamp, log_dir="logs"):
     os.makedirs(log_dir, exist_ok=True)
 
     # Log file paths
@@ -724,7 +725,7 @@ def sliding_window_training(
         "learning_rate": optimizer.param_groups[0]["lr"],
     }
 
-    log_txt, log_json_path, json_log = create_run_logger(
+    log_txt, log_json_path, json_log = create_temporal_run_logger(
         model_name=model_name_log,
         params=params,
         timestamp=timestamp
@@ -1042,6 +1043,264 @@ def sliding_window_training(
         f.write(f"Training Complete in: {total_minutes:.2f} minutes.")
 
     return history
+
+# Training loop
+
+def train_model(model, train_loader, val_loader, 
+                criterion, optimizer, num_epochs, batch_size, device = 'cpu', fft=None,
+                model_name=None, csv_name_used = None, model_save_name=None, 
+                make_images=True, fixed_images=None, fixed_labels=None, 
+                grid_size = None):
+
+    timestamp_pth = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    if model_name is None:
+        model_name = "No model name provided"
+
+    if csv_name_used is None:
+        csv_name_used = "none provided"
+
+    if model_save_name is not None:
+        model_name_log = f"regular_{model_name}_{model_save_name}"
+    elif model_save_name is None:
+        model_name_log = f"regular_{model_name}"
+
+    params = {
+        "training_type": "baseline",
+        "model": model_name,
+        "dataset split used:": csv_name_used,
+        "epochs_per_step": num_epochs,
+        "batch_size": batch_size,
+        "learning_rate": optimizer.param_groups[0]["lr"],
+    }
+
+    log_txt, log_json, json_log = create_run_logger(model_name=model_name_log, 
+                                                    params = params, 
+                                                    timestamp=timestamp_pth)
+
+    # Log device + dataset sizes
+    device_info = str(device)
+    if device.type == "cuda":
+        device_info += f" ({torch.cuda.get_device_name(0)})"
+        print(f"Using device: {device_info}")
+    else:
+        device_info += " (CPU)"
+        print(f"Using device: {device_info}")
+
+    with open(log_txt, "a") as f:
+        f.write(f"Using device: {device_info}\n")
+        f.write(f"Using dataset: {csv_name_used}\n")
+        f.write(f"Using model: {model_name }\n")
+        f.write(f"Using epochs per step: {num_epochs}\n")
+        f.write(f"Using batch size: {batch_size}\n")
+        f.write(f"Using learning rate: {optimizer.param_groups[0]['lr']}\n")
+        f.write(f"Training samples: {len(train_loader.dataset)}\n")
+        f.write(f"Validation samples: {len(val_loader.dataset)}\n\n")
+
+    # Training setup
+    best_val_acc = 0.0
+    best_val_f1 = 0.0
+    start_time = time.time()
+
+    track_loss = []
+    track_train_acc = []
+    track_val_acc = []
+
+    # Epoch loop
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+
+        print(f"\n- Epoch {epoch+1}/{num_epochs}")
+
+        # Wrap train loader with tqdm
+        train_pbar = tqdm(train_loader, desc="Training", unit="batch")
+        for images, labels, _ in train_pbar:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad()
+
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+            _, predicted = outputs.max(1)
+            total += labels.size(0)
+            correct += predicted.eq(labels).sum().item()
+
+            train_acc = 100 * correct / total
+            avg_loss = running_loss / (len(train_loader) if len(train_loader) > 0 else 1)
+
+            # Live update progress bar
+            train_pbar.set_postfix({
+                "Loss": f"{avg_loss:.4f}",
+                "Train Acc": f"{train_acc:.2f}%"
+            })
+
+        model.eval()
+        val_correct = 0
+        val_total = 0
+
+        all_preds = []
+        all_labels = []
+        all_probs = []  # needed for ROC-AUC
+
+        val_pbar = tqdm(val_loader, desc="Validating", unit="batch", leave=False)
+
+        with torch.no_grad():
+            for images, labels, _ in val_pbar:
+                images, labels = images.to(device), labels.to(device)
+
+                outputs = model(images)
+                probs = F.softmax(outputs, dim=1)[:, 1]   # probability of class 1 (FAKE)
+
+                _, predicted = outputs.max(1)
+
+                val_total += labels.size(0)
+                val_correct += predicted.eq(labels).sum().item()
+
+                # store for metrics
+                all_preds.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())
+                all_probs.extend(probs.cpu().numpy())
+
+            #-------------images
+            outputs_grid = model(fixed_images)
+            preds_grid = torch.argmax(outputs_grid, dim=1)
+
+        # Accuracy
+        val_acc = 100 * val_correct / val_total
+
+        # Precision, Recall, F1 (macro or binary depending on your needs)
+        val_precision = precision_score(all_labels, all_preds, zero_division=0)
+        val_recall = recall_score(all_labels, all_preds, zero_division=0)
+        val_f1 = f1_score(all_labels, all_preds, zero_division=0)
+
+        # ROC-AUC (requires probabilities)
+        try:
+            val_auc = roc_auc_score(all_labels, all_probs)
+        except ValueError:
+            val_auc = float('nan')  # e.g., if only one class appears in labels
+
+        if make_images is True:
+            if fft is True:
+                #UPDATE FOR FFT
+                fixed_images = fixed_images[:, :3, :, :]   # shape (N, 3, H, W)
+            else:
+                fixed_images = fixed_images
+
+            label_names = ['Real', 'Fake']
+            true_names = [label_names[l.item()] for l in fixed_labels]
+            pred_names = [label_names[p.item()] for p in preds_grid]
+
+            # Create the figure
+            fig, axs = plt.subplots(3, 1, figsize=(8, 8))
+
+            # Row 1: Image grid
+            grid_img = make_grid(fixed_images.cpu(), nrow=grid_size, normalize=True)
+            axs[0].imshow(np.transpose(grid_img.numpy(), (1, 2, 0)))
+            axs[0].set_title("Validation Samples")
+            axs[0].axis("off")
+
+            # Image dimensions for positioning labels
+            img_w = grid_img.shape[2] // grid_size
+            img_h = grid_img.shape[1] // grid_size
+
+            # Row 2: True labels (white background + text)
+            axs[1].imshow(np.ones((img_h * grid_size, img_w * grid_size, 3)))
+            axs[1].set_title("True Labels")
+            axs[1].axis("off")
+            for i, lbl in enumerate(true_names):
+                axs[1].text(
+                    (i % grid_size + 0.5) * img_w,
+                    (i // grid_size + 0.5) * img_h,
+                    lbl,
+                    ha='center', va='center', fontsize=14, color='black'
+                )
+
+            # Row 3: Predicted labels (green/red text for correctness)
+            axs[2].imshow(np.ones((img_h * grid_size, img_w * grid_size, 3)))
+            axs[2].set_title("Predicted Labels")
+            axs[2].axis("off")
+            for i, lbl in enumerate(pred_names):
+                color = 'green' if lbl == true_names[i] else 'red'
+                axs[2].text(
+                    (i % grid_size + 0.5) * img_w,
+                    (i // grid_size + 0.5) * img_h,
+                    lbl,
+                    ha='center', va='center', fontsize=14, color=color
+                )
+
+            plt.tight_layout()
+            plt.show()
+
+        # Logging epoch data
+        with open(log_txt, "a") as f:
+            f.write(f"Epoch {epoch+1}/{num_epochs}\n")
+            f.write(f"  Loss: {avg_loss:.4f}\n")
+            f.write(f"  Train Acc: {train_acc:.2f}%\n")
+            f.write(f"  Val Acc: {val_acc:.2f}%\n")
+            f.write(f"  Precision: {val_precision:.4f}\n")
+            f.write(f"  Recall: {val_recall:.4f}\n")
+            f.write(f"  F1 Score: {val_f1:.4f}\n")
+            f.write(f"  ROC-AUC: {val_auc:.4f}\n\n")
+
+        json_log["epoch_data"].append({
+            "epoch": epoch + 1,
+            "loss": avg_loss,
+            "train_acc": train_acc,
+            "val_acc": val_acc,
+            "precision": val_precision,
+            "recall": val_recall,
+            "f1": val_f1,
+            "roc_auc": val_auc
+        })
+
+        # Save best model
+        # if val_acc > best_val_acc:
+        #     best_val_acc = val_acc
+        #     torch.save(model.state_dict(), f"best_{model_name}_{timestamp_pth}.pth")
+
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
+            torch.save(model.state_dict(), f"best_{model_name}_{timestamp_pth}.pth")
+
+        print(f"Epoch {epoch+1}/{num_epochs} "
+              f"Loss: {avg_loss:.4f} | Train Acc: {train_acc:.2f}% | Val Acc: {val_acc:.2f}%\n"
+              f"Precision: {val_precision:.4f} | Recall: {val_recall:.4f}\n"
+              f"F1 Score: {val_f1:.4f} | ROC-AUC: {val_auc:.4f}%")
+        
+        track_loss.append(avg_loss)
+        track_train_acc.append(train_acc)
+        track_val_acc.append(val_acc)
+    
+        # Final log summary
+    total_minutes = (time.time() - start_time) / 60
+
+    with open(log_txt, "a") as f:
+        f.write("\nTRAINING COMPLETE \n")
+        f.write(f"Total time: {total_minutes:.2f} minutes\n")
+        f.write(f"Best Validation Accuracy: {best_val_acc:.2f}%\n")
+        f.write(f".pth saved as best_{model_name}_{timestamp_pth}.pth")
+
+    json_log["total_minutes"] = total_minutes
+    json_log["best_val_acc"] = best_val_acc
+
+    with open(log_json, "w") as f:
+        json.dump(json_log, f, indent=4)
+
+    print(f"Logs saved to:\n  {log_txt}\n  {log_json}")
+
+    print(f"\nTraining complete in {(time.time() - start_time)/60:.2f} minutes.")
+    print(f"Best validation accuracy: {best_val_acc:.2f}%")
+    
+    if make_images is True:
+        plot_loss_and_acc(track_loss, track_train_acc, track_val_acc)
+
+    return track_loss, track_train_acc, track_val_acc
 
 ''' 
 Helper Classes

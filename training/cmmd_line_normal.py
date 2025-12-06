@@ -24,7 +24,7 @@ from helper_functions import *
 # Helper Functions
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train Temporal model for AI image detection.")
+    parser = argparse.ArgumentParser(description="Train model for AI image detection.")
 
     parser.add_argument("--data_root", type=str, required=True,
                         help="Root folder containing train/ and validation/ subfolders.")
@@ -61,7 +61,7 @@ train_dir = data_root / "train"
 val_dir = data_root / "validation"
 
 batch_size = args.batch_size
-num_epochs_per_step = args.num_epochs
+num_epochs = args.num_epochs
 learning_rate = args.learning_rate
 train_percent = args.train_percent
 num_workers = args.num_workers
@@ -81,37 +81,21 @@ train_loader, val_loader, train_dataset, val_dataset, csv_name = main_data_loadi
                                                                                    batch_size, num_workers=num_workers, 
                                                                                    jpeg_compression=jpeg_compression)
 
-train_real_indices, train_fake_indices_by_w, val_real_indices, val_fake_indices_by_w, max_w = confirm_windows(train_dataset, val_dataset)
 
 confirm_labels(train_dataset, val_dataset)
 
 model, criterion, optimizer = make_model(model_name=model_name, learning_rate=learning_rate, device=device)
 
-history = sliding_window_training(
-    model=model,
-    criterion=criterion,
-    optimizer=optimizer,
-    train_dataset=train_dataset,
-    val_dataset=val_dataset,
-    train_real_indices=train_real_indices,
-    train_fake_indices_by_w=train_fake_indices_by_w,
-    val_real_indices=val_real_indices,
-    val_fake_indices_by_w=val_fake_indices_by_w,
-    max_w=max_w,
-    num_epochs_per_step=num_epochs_per_step,
-    batch_size=batch_size,
-    device=device,
-    model_name=model_name,
-    num_workers=num_workers,
-    csv_name_used=csv_name,
-    model_save_name=save_model_name #not a needed parameter, but will add something at end of model name logger and pth to make it unique if wanted
-)
+h = train_model(model=model, train_loader=train_loader, val_loader=val_loader,
+                criterion=criterion, optimizer=optimizer, num_epochs=num_epochs,
+                batch_size=batch_size, device=device, fft=fft, model_name=model_name, csv_name_used=csv_name,
+                model_save_name=save_model_name, make_images=False)
 
 '''
 EXAMPLE USAGE
 
 I had to do this within Conda powershell, im sure there is a way to do it in powershell.
 
-python cmmd_line_temporal.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --model_name "resnet50" 
+python cmmd_line_normal.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --model_name "resnet50" 
 --batch_size 16 --num_epochs 1 --learning_rate 1e-4 --train_percent 0.1 --num_workers=0 --jpeg_comp=True --save_model_name "cmmd_line"
 '''
