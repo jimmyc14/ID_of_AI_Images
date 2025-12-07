@@ -59,10 +59,12 @@ FOR RIVANNA: Run the following line to make sure JupyterLab can see our new envi
 - IMPORTANT FOR RIVANNA: in the terminal run ```module load git-lfs``` and ```git lfs install```, this loads gits large file storage which allows us to get the data
 
 - Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
-    - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
+
+- ```cd DS6050_Ai_Detection```
+- ```rm -rf .git``` this is recommended to save space 
 
 - The data are stored in arrows, so you will have to extract them using the following script from the repo:
-[https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb)
+[https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb) this requires creating the conda environment as stated above. 
 
 - Fill in the path you just clone the repo to in the 'parallel_test.ipynb' script. For example mine is: ```C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection``` as seen in the current script. FOR RIVANNA: make sure to include the directory structure you are using, for example with SCRATCH: ```/scratch/{uva_id}/path/to/DS6050_Ai_Detection```
 
@@ -73,6 +75,7 @@ FOR RIVANNA: Run the following line to make sure JupyterLab can see our new envi
 
 - Due to this, if a failure occurs mid-extraction, make sure all 4 folders containing arrows are there before attempting to run again. If not, you may need to clone the dataset (or at least the missing folders) again.
 
+- If you are having issues, please see a [more in depth data download documentation](https://myuva-my.sharepoint.com/:w:/g/personal/szp2fv_virginia_edu/IQCxSKjQNzvKR4r8v_2MjzGqAaWmcJ2-rnDAPecnqIpWgfc?e=IqS5UA)
 ---
 
 # Training Models
@@ -131,6 +134,8 @@ Within each notebook, simply add the path to your jsons to the json_path list to
 # Running Inference
 
 A notebook can be found to run some inference our your own images. In the 'inference' folder, the [inference notebook](inference/inference.ipynb) can be used to run your own trained model. Using a dictionary of each 4 base models, you can give the paths to every .pth weight files available to test. The folder 'images' within the 'inference' folder is where you can upload images for your models to test. 
+
+This will generate a .txt file with results as well.
 
 4 example images and 4 model .pth weights are uploaded for you to test. 
 
