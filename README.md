@@ -1,13 +1,37 @@
 # ID_of_AI_Images
 UVA DS6050 Fall 2025 Group 7 Final Project. Identification of AI Images. 
 
-Currently using conda to manage environments
+This project incorperates the [AI-GenBench](https://github.com/MI-BioLab/AI-GenBench) dataset and workflow for the use of additional models for testing and evaluation. A 40% sample was used from the full AI-GenBench dataset, and used to train and validate our models. The AI-GenBench workflow uses a windowed training approach, where a model is trained on temporal windows of AI generated images. This process allows for models to be evaluated on their ability to generalize for future models. 
 
-### ***Using Random Seed of 6050 for any random process***
+We propose 2 initial models, a simple ResNet50 and ViT model, with the addition of FFT (Fast Fourier Transform) versions of each model. This results in 4 total models. 
 
+We also recreate the AI-GenBench temporal training workflow, as well as a general 'normal' workflow that uses all images and does not consider temporal information. 
+
+These training methods are split into 2 groups, temporal and normal. We focus on temporal training, as this reflects the AI-GenBench's original method, as well as allowing for the group to see a model's ability to generalize. However 'normal' training is still available. 
+
+2 Methods of training are available, via a juptyer notebook, and via the commandline. 
+
+## Contents
+
+- [Setting Up Environment](#setting-up-our-environment)
+- [Getting the Dataset on Your Machine](#getting-the-dataset-on-your-machine)
+- [Training Models](#training-models)
+    - [Available Models](#available-models)
+    - [Main Parameters](#main-parameters)
+    - [Via Jupyter Notebook](#jupyter-notebook-training)
+    - [Via Commandline](#commandline-training)
+- [Viewing Results](#viewing-results)
+- [Running Inference](#running-inference)
+- [Dataset Stats](dataset_stats.md)
+
+Extra
+- [Getting GitHub Sync'd with Rivanna (if GitHub editor)](#connecting-your-rivanna-session-to-the-main-github-repo)
+- [Getting AI-GenBench Running (if attempting to recreate original dataset)](#getting-ai-genbench-to-run-only-needed-if-trying-to-compile-the-data-the-way-they-do)
 ---
 
 # Setting up our environment
+
+Currently using conda to manage environments
 
 Clone this repo: ```https://github.com/jimmyc14/ID_of_AI_Images.git```
 
@@ -35,7 +59,7 @@ FOR RIVANNA: Run the following line to make sure JupyterLab can see our new envi
 - IMPORTANT FOR RIVANNA: in the terminal run ```module load git-lfs``` and ```git lfs install```, this loads gits large file storage which allows us to get the data
 
 - Use ```git clone https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection``` to copy the dataset. This will take some time as the dataset is ~40 gb. https://huggingface.co/datasets/szp2fv/DS6050_Ai_Detection
-* - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
+    - *note there may be a hidden .git file in the dataset that is large after cloning, feel free to delete if needed. 
 
 - The data are stored in arrows, so you will have to extract them using the following script from the repo:
 [https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb](https://github.com/jimmyc14/ID_of_AI_Images/blob/main/data_download_management/parallel_test.ipynb)
@@ -44,12 +68,72 @@ FOR RIVANNA: Run the following line to make sure JupyterLab can see our new envi
 
 - As the script runs, it will copy all images into a respective temp_ folder, then delete the original folder storing the arrows, to save some space. It will then rename the temp folders.
 
-* - note: This will also take some time, it took roughly ~30-60 minutes for me. 
-* - note2: Roughly ~300 images in the dataset are EXTREMELY large, causing issues with saving. They are therefore resized 10x smaller to avoid errors during this extraction process. These images were 30720x20562 pixels originally. 
+    - note: This will also take some time, it took roughly ~30-60 minutes for me. 
+    - note2: Roughly ~300 images in the dataset are EXTREMELY large, causing issues with saving. They are therefore resized 10x smaller to avoid errors during this extraction process. These images were 30720x20562 pixels originally. 
 
 - Due to this, if a failure occurs mid-extraction, make sure all 4 folders containing arrows are there before attempting to run again. If not, you may need to clone the dataset (or at least the missing folders) again.
 
 ---
+
+# Training Models
+
+Training models will generate logging data in the folder 'logs'. This folder will automatically be created when you train the first model. For each run, there will be a .txt and .json generated that will be updated at each step/epoch. A .pth file that stores all the best weights for the model will also be generated as the model is trained and store in the training folder. This .pth file will be updated when a new best F1 score is made. 
+
+A dataset split .csv will also be generated in the log file upon each creation of a new dataset within the traning code. 
+
+### Available Models
+4 models are available to train. 
+- [ResNet50: 'resnet50'](models/resnet.py)
+- [ResNet50+FFT: 'resnet50_fft'](models/resnet_fft.py)
+- [ViT: 'vit'](models/vit.py)
+- [ViT+FFT: 'vit_fft'](models/vit_fft.py)
+
+### Main Parameters
+The main parameters as found within each notebook / for command line running
+- data_root: Str, The main folder where all the data is located for training/validation. 
+- model_name: Str. The model you want to used for training, 1 of the 4 available models.
+- train_percent: Float. Percentage of all data available to train model on. Must be between 0.1-1.0. Helpful for testing. 
+- num_epochs: Int. Number of epochs to train the model. For temporal model, epochs will be run back to back for each window step.
+- batch_size: Int. Number of batches to train at a time. Must be divisable by 8. 
+- learning_rate: Float. The learning rate to use for model training.
+- num_workers: Int. Number of workers to use for data loading. (Bugged, set to 0 for the moment)
+- jpeg_comp: Boolean. If True, will augment training data with jpeg compression, otherwise no compression. 
+- save_model_name: Str. Optional, will add str at end of model name for logging. 
+
+## Jupyter Notebook Training
+
+For both Temporal and Normal Models, training via notebooks can be done from the [normal training](training/training_normal_nb.ipynb) and [temporal training](training/training_temporal_nb.ipynb) notebooks. 
+
+In these notebooks, simply update the configuration block with your data path and your desired training parameters.
+
+## Commandline Training
+
+For commandline training, we could only get it working through a conda commandline, but we are sure some simple work can be done to run on normal commandline. 
+
+- cd into the training directory within ID_of_AI_Images: ```cd training```
+- For Temporal training: run the cmmd_line_temporal.py. 
+    - example usage: ```python cmmd_line_temporal.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --model_name "resnet50" 
+--batch_size 16 --num_epochs 1 --learning_rate 1e-4 --train_percent 0.1 --num_workers=0 --jpeg_comp True --save_model_name "cmmd_line" ```
+
+- For Normal training: run the cmmd_line_normal.py.
+    - example usage: ```python cmmd_line_normal.py --data_root "C:/Users/Jimmy/OneDrive/Desktop/test/DS6050_Ai_Detection" --model_name "resnet50" 
+--batch_size 16 --num_epochs 1 --learning_rate 1e-4 --train_percent 0.1 --num_workers=0 --jpeg_comp True --save_model_name "cmmd_line"
+''' ```
+
+# Viewing Results
+
+There are 2 json parsers available in this project.
+- One for [temporal training results](temporal_json_parsing.ipynb)
+- One for [normal training results](regular_json_parsing.ipynb)
+
+Within each notebook, simply add the path to your jsons to the json_path list to compare them to each other. Some sample jsons are available within the 'training/logs' folder. 
+
+# Running Inference
+
+A notebook can be found to run some inference our your own images. In the 'inference' folder, the [inference notebook](inference/inference.ipynb) can be used to run your own trained model. Using a dictionary of each 4 base models, you can give the paths to every .pth weight files available to test. The folder 'images' within the 'inference' folder is where you can upload images for your models to test. 
+
+4 example images and 4 model .pth weights are uploaded for you to test. 
+
 # Connecting Your Rivanna session to the main github repo
 
 - First, must accept invation to be a collaborator for the github repo.
@@ -101,261 +185,3 @@ https://github.com/MI-BioLab/AI-GenBench/blob/main/dataset_creation/README.md#si
 - As stated above, we are using a random 40% subset of the full 360,000 proposed images, for a total of 143,450 images. 
 
 --- 
-# Dataset Stats
-
-## Split Counts
-
-| Split | Count   |
-|-------|--------:|
-| Training | 115,200 |
-| Validation | 28,340 |
-|────────────|
-| Total | 143,540 |
-
-## Image Type Counts
-
-| Type | Count   |
-|-------|--------:|
-| Real | 71,770 |
-| Fake | 71,770 |
-|──────|
-| Total | 143,540 |
-
-## Image Type by Split Counts
-
-| Split/Type | Count   |
-|-------|--------:|
-| Real Train | 57,600 |
-| Fake Train | 57,600 |
-| Real Validation | 14,170 |
-| Fake Validation | 14,170 |
-|─────────────────|
-| Total | 143,540 |
-
-## Real Image Dataset Sources
-
-### Total Real from Souces
-
-| Real Source | Count   |
-|-------|--------:|
-| Laion | 41,043 |
-| Coco | 30,727 |
-|──────|
-| Total | 71,770 |
-
-### Real Split Sources
-
-| Real Split Source | Count   |
-|-------|--------:|
-| Train Laion | 28,825 |
-| Train Coco | 28,775 |
-| Validation Laion | 12,218 |
-| Validation Coco | 1,952 |
-|─────────────────|
-| Total | 71,770 |
-
-* note the low number of coco validation images. This is due to the original coco validation dataset only having 5,000 images
-
-## Fake Image Dataset Sources
-
-The Fake Images are sourced from 12 datasets, and 36 total generators. Some of the datasets have different splits listed, and some of the generators have different releases listed. 
-
-### Fake Generator Counts
-
-| Generator                     | Count   |
-|-------------------------------|--------:|
-| ADM                           |   1,976 |
-| BigGAN                        |   1,976 |
-| CIPS                          |   2,018 |
-| Cascaded Refinement Networks  |   2.008 |
-| CycleGAN                      |   1,953 |
-| DALL-E 3                      |   2,086 |
-| DDPM                          |   2,033 |
-| DeepFloyd IF                  |   2,008 |
-| Denoising Diffusion GAN       |   2,033 |
-| Diffusion GAN (ProjectedGAN)  |   2,024 |
-| Diffusion GAN (StyleGAN2)     |   1,942 |
-| FLUX 1 Dev                    |   1,973 |
-| FLUX 1 Schnell                |   2,026 |
-| FaceSynthetics                |   1,960 |
-| GANformer                     |   1,935 |
-| GauGAN                        |   2,005 |
-| Glide                         |   1,927 |
-| IMLE                          |   1,978 |
-| LaMa                          |   1,999 |
-| Latent Diffusion              |   2,025 |
-| MAT                           |   2,024 |
-| Midjourney                    |   1,939 |
-| Palette                       |   1,912 |
-| ProGAN                        |   1,950 |
-| ProjectedGAN                  |   1,997 |
-| SN-PatchGAN                   |   2,043 |
-| Stable Diffusion 1.4          |   1,994 |
-| Stable Diffusion 1.5          |   1,982 |
-| Stable Diffusion 2.1          |   1,990 |
-| Stable Diffusion XL 1.0       |   1,961 |
-| StarGAN                       |   1,998 |
-| StyleGAN1                     |   2,062 |
-| StyleGAN2                     |   1,969 |
-| StyleGAN3                     |   2,025 |
-| VQ-Diffusion                  |   2,025 |
-| VQGAN                         |   2,019 |
-|───────────────────────────────|
-| Total | 71,770 |
-
-### Fake Image Origin Dataset Counts
-
-| Origin Dataset             | Count   |
-|---------------------------|--------:|
-| Aeroblade                 |     399 |
-| Artifact                  |  31,881 |
-| DDMD                      |   6,343 |
-| DMimageDetection/test     |   2,706 |
-| DMimageDetection/train    |     187 |
-| DMimageDetection/valid    |     208 |
-| DRCT                      |   2,210 |
-| ELSA_D3/train             |   2,269 |
-| ELSA_D3/valid             |   2,289 |
-| Forensynths/test          |   8,900 |
-| Forensynths/train         |     113 |
-| Forensynths/valid         |     113 |
-| GenImage/train            |   5,481 |
-| GenImage/val              |     210 |
-| Imageinet                 |   2,464 |
-| Polardiffshield           |     785 |
-| SFHQ-T2I                  |   4,403 |
-| Synthbuster               |     809 |
-|───────────────────────────|
-| Total | 71,770 |
-
-## Fake Training Split Generators and Sources
-
-| Generator                    | Count |
-| ---------------------------- | ----: |
-| DALL-E 3                     |  1680 |
-| CIPS                         |  1664 |
-| SN-PatchGAN                  |  1644 |
-| StyleGAN1                    |  1637 |
-| Latent Diffusion             |  1635 |
-| MAT                          |  1634 |
-| Diffusion GAN (ProjectedGAN) |  1630 |
-| FLUX 1 Schnell               |  1628 |
-| StyleGAN3                    |  1623 |
-| DeepFloyd IF                 |  1621 |
-| DDPM                         |  1619 |
-| VQ-Diffusion                 |  1618 |
-| StarGAN                      |  1616 |
-| GauGAN                       |  1612 |
-| Cascaded Refinement Networks |  1609 |
-| StyleGAN2                    |  1606 |
-| ProjectedGAN                 |  1603 |
-| ADM                          |  1602 |
-| Stable Diffusion 2.1         |  1600 |
-| Denoising Diffusion GAN      |  1597 |
-| VQGAN                        |  1594 |
-| BigGAN                       |  1590 |
-| Stable Diffusion 1.4         |  1587 |
-| FLUX 1 Dev                   |  1586 |
-| LaMa                         |  1584 |
-| IMLE                         |  1584 |
-| Stable Diffusion 1.5         |  1579 |
-| CycleGAN                     |  1575 |
-| GANformer                    |  1566 |
-| Stable Diffusion XL 1.0      |  1565 |
-| FaceSynthetics               |  1564 |
-| ProGAN                       |  1564 |
-| Glide                        |  1561 |
-| Diffusion GAN (StyleGAN2)    |  1561 |
-| Midjourney                   |  1545 |
-| Palette                      |  1517 |
-|──────────────────────────────|
-| Total | 57,600 |
-
-| Origin Dataset         | Count |
-| ---------------------- | ----: |
-| Artifact               | 25577 |
-| Forensynths/test       |  7160 |
-| DDMD                   |  5073 |
-| GenImage/train         |  4400 |
-| SFHQ-T2I               |  3530 |
-| DMimageDetection/test  |  2205 |
-| Imaginet               |  1968 |
-| ELSA_D3/valid          |  1845 |
-| ELSA_D3/train          |  1822 |
-| DRCT                   |  1765 |
-| Synthbuster            |   645 |
-| Polardiffshield        |   629 |
-| Aeroblade              |   315 |
-| DMimageDetection/valid |   171 |
-| GenImage/val           |   167 |
-| DMimageDetection/train |   144 |
-| Forensynths/train      |    96 |
-| Forensynths/valid      |    88 |
-|────────────────────────|
-| Total | 57,600 |
-
-## Fake Validation Split Generators and Sources
-
-| Generator                    | Count |
-| ---------------------------- | ----: |
-| Denoising Diffusion GAN      |   436 |
-| StyleGAN1                    |   425 |
-| VQGAN                        |   425 |
-| LaMa                         |   415 |
-| DDPM                         |   414 |
-| Stable Diffusion 1.4         |   407 |
-| DALL-E 3                     |   406 |
-| Stable Diffusion 1.5         |   403 |
-| VQ-Diffusion                 |   402 |
-| StyleGAN3                    |   402 |
-| Cascaded Refinement Networks |   399 |
-| SN-PatchGAN                  |   399 |
-| FLUX 1 Schnell               |   398 |
-| Stable Diffusion XL 1.0      |   396 |
-| FaceSynthetics               |   396 |
-| Palette                      |   395 |
-| Midjourney                   |   394 |
-| IMLE                         |   394 |
-| Diffusion GAN (ProjectedGAN) |   394 |
-| ProjectedGAN                 |   394 |
-| GauGAN                       |   393 |
-| Stable Diffusion 2.1         |   390 |
-| MAT                          |   390 |
-| Latent Diffusion             |   390 |
-| DeepFloyd IF                 |   387 |
-| FLUX 1 Dev                   |   387 |
-| BigGAN                       |   386 |
-| ProGAN                       |   386 |
-| StarGAN                      |   382 |
-| Diffusion GAN (StyleGAN2)    |   381 |
-| CycleGAN                     |   378 |
-| ADM                          |   374 |
-| GANformer                    |   369 |
-| Glide                        |   366 |
-| StyleGAN2                    |   363 |
-| CIPS                         |   354 |
-|──────────────────────────────|
-| Total | 14,170 |
-
-| Origin Dataset         | Count |
-| ---------------------- | ----: |
-| Artifact               |  6304 |
-| Forensynths/test       |  1740 |
-| DDMD                   |  1270 |
-| GenImage/train         |  1081 |
-| SFHQ-T2I               |   873 |
-| DMimageDetection/test  |   501 |
-| Imaginet               |   496 |
-| ELSA_D3/train          |   447 |
-| DRCT                   |   445 |
-| ELSA_D3/valid          |   444 |
-| Synthbuster            |   164 |
-| Polardiffshield        |   156 |
-| Aeroblade              |    84 |
-| GenImage/val           |    43 |
-| DMimageDetection/train |    43 |
-| DMimageDetection/valid |    37 |
-| Forensynths/valid      |    25 |
-| Forensynths/train      |    17 |
-|────────────────────────|
-| Total | 14,170 |
